@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 
 
@@ -17,8 +19,9 @@ class PleasantHabit(models.Model):
     date_time = models.DateTimeField(verbose_name='время привычки')
     action = models.CharField(max_length=150, verbose_name='действие')
     interval = models.CharField(max_length=19, choices=Kinds.choices, default=Kinds.DAILY, verbose_name='периодичность')
-    execution_time = models.TimeField(verbose_name='время выполнения')
-    is_published = models.BooleanField(default=False, verbose_name='время выполнения')
+    execution_time = models.DurationField(verbose_name='время выполнения', default=timedelta(minutes=2),
+                                          help_text='Введите время в секундах. Максимальное время — 120 сек.')
+    is_published = models.BooleanField(default=False, verbose_name='статус')
 
     def __str__(self):
         return f'я буду {self.action} в {self.date_time} в {self.place}'
