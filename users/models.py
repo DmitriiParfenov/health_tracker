@@ -38,6 +38,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=30, verbose_name='номер_телефона', **NULLABLE)
     city = models.CharField(max_length=150, verbose_name='город', **NULLABLE)
     avatar = models.ImageField(upload_to='users/', verbose_name='аватарка', **NULLABLE)
+    telegram_chat_id = models.PositiveIntegerField(verbose_name='идентификатор чата в телеграм', default=0)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
