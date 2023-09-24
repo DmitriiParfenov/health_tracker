@@ -13,5 +13,5 @@ class UserListSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'city', 'phone', 'avatar')
+        fields = ('id', 'email', 'first_name', 'last_name', 'city', 'phone', 'avatar', 'telegram_chat_id')
         ref_name = 'UserSerializer'
