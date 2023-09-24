@@ -1,20 +1,29 @@
 from rest_framework import serializers
 
-from habits.models import PleasantHabit
+from habits.models import PleasantHabit, Habit
+from habits.validators import ExecutionTimeValidation, RewardOrPleasantHabitValidation, CountHabitPerDayValidation, \
+    PleasantHabitOwnerValidation
 from users.models import User
+
+
+class HabitSerializer(serializers.ModelSerializer):
+    habit_user = serializers.SlugRelatedField(slug_field='email', queryset=User.objects.all())
+    execution_time = serializers.DurationField(validators=[ExecutionTimeValidation(field='execution_time')])
+
+    class Meta:
+        model = Habit
+        fields = ('id', 'habit_user', 'place', 'date_time', 'action', 'interval',
+                  'execution_time', 'is_published', 'pleasant_habit', 'reward')
+        validators = [RewardOrPleasantHabitValidation(field_1='reward', field_2='pleasant_habit'),
+                      CountHabitPerDayValidation(field='date_time'),
+                      PleasantHabitOwnerValidation(field='pleasant_habit')]
 
 
 class PleasantHabitSerializer(serializers.ModelSerializer):
     habit_user = serializers.SlugRelatedField(slug_field='email', queryset=User.objects.all())
-
-    def validate_execution_time(self, data):
-        errors = {}
-        if not 0 < data.total_seconds() <= 120:
-            errors['invalid_time'] = 'Максимальное время выполнения — 120 сек.'
-        if errors:
-            raise serializers.ValidationError(errors)
-        return data
+    execution_time = serializers.DurationField(validators=[ExecutionTimeValidation(field='execution_time')])
 
     class Meta:
         model = PleasantHabit
-        fields = ('id', 'habit_user', 'place', 'date_time', 'action', 'interval', 'execution_time', 'is_published',)
+        fields = ('id', 'place', 'date_time', 'action', 'execution_time', 'is_published', 'habit_user')
+        validators = [CountHabitPerDayValidation(field='date_time')]
