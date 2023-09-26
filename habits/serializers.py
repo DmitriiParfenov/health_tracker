@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from habits.models import PleasantHabit, Habit
 from habits.validators import ExecutionTimeValidation, RewardOrPleasantHabitValidation, CountHabitPerDayValidation, \
-    PleasantHabitOwnerValidation
+    PleasantHabitOwnerValidation, CountPleasantHabitPerDayValidation
 from users.models import User
 
 
@@ -26,4 +26,4 @@ class PleasantHabitSerializer(serializers.ModelSerializer):
     class Meta:
         model = PleasantHabit
         fields = ('id', 'place', 'date_time', 'action', 'execution_time', 'is_published', 'habit_user')
-        validators = [CountHabitPerDayValidation(field='date_time')]
+        validators = [CountPleasantHabitPerDayValidation(field='date_time')]
