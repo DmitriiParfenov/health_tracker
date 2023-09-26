@@ -8,6 +8,7 @@ from users.models import User
 # Create your tests here.
 class UserModelTestCase(APITestCase):
     def setUp(self) -> None:
+
         # Получение маршрутов
         self.authentication_url = '/user/token/'
 
@@ -61,8 +62,6 @@ class UserModelTestCase(APITestCase):
         # Получение заголовка для авторизации второго пользователя
         self.headers_user_2 = {'Authorization': f'Bearer {response_2.json().get("access")}'}
 
-        return super().setUp()
-
     def tearDown(self) -> None:
         return super().tearDown()
 
@@ -78,8 +77,6 @@ class UserRegistrationTestCase(APITestCase):
             'email': 'test@test.com',
             'password': 'ChooseBestPassword'
         }
-
-        return super().setUp()
 
     def test_user_cannot_register_without_data(self):
         """Для регистрации пользователя необходимо предоставить email и password."""
