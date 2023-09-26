@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from habits.models import Habit
+from habits.models import Habit, PleasantHabit
 
 
 class ExecutionTimeValidation:
@@ -72,7 +72,34 @@ class PleasantHabitOwnerValidation:
         errors = {}
         pleasant_habit = value.get(self.field)
         user = value.get('habit_user')
-        if pleasant_habit.habit_user != user and not pleasant_habit.is_published:
-            errors['pleasant_habit'] = 'Вы можете добавлять только свою приятную привычку или доступную для всех.'
+        if pleasant_habit:
+            if pleasant_habit.habit_user != user and not pleasant_habit.is_published:
+                errors['pleasant_habit'] = 'Вы можете добавлять только свою приятную привычку или доступную для всех.'
+            if errors:
+                raise serializers.ValidationError(errors)
+
+
+class CountPleasantHabitPerDayValidation:
+    """Класс для валидации поля <date_time> модели PleasantHabit. Пользователь не может устанавливать привычку чаще
+    1 в час."""
+
+    def __init__(self, field):
+        self.field = field
+
+    def __call__(self, value):
+        # Объявление переменных.
+        errors = {}
+        user = value.get('habit_user')
+        hour = value.get(self.field).hour
+
+        # Получение всех временных интервалов одного пользователя.
+        hours_data = PleasantHabit.objects.select_related('habit_user').filter(
+            habit_user__email=user
+        ).values('date_time')
+        hour_by_user = [x['date_time'].hour for x in hours_data]
+
+        # Нельзя создавать 1 привычку чаще чем 1 раз в час.
+        if hour in hour_by_user:
+            errors['date_time'] = 'Для одного пользователя необходимо устанавливать привычку не чаще 1 в час.'
         if errors:
             raise serializers.ValidationError(errors)
