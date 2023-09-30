@@ -3,9 +3,8 @@ from datetime import datetime, timedelta
 
 import requests
 from celery import shared_task
-from config import settings
-from django_celery_beat.models import CrontabSchedule, PeriodicTask
 
+from config import settings
 from habits.models import Habit, HabitLog
 
 TELEGRAM_API_KEY = settings.TELEGRAM_API_KEY
@@ -99,31 +98,31 @@ def telegram_schedule():
         if user_log.exists():
             date_try = user_log.order_by('-last_try').first()
             if habit.interval == habit.Kinds.DAILY:
-                if (now.day - date_try.last_try.day) == 1 and (
+                if (now.day - date_try.last_try.day) >= 1 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
             elif habit.interval == habit.Kinds.TWICE:
-                if (now.day - date_try.last_try.day) == 2 and (
+                if (now.day - date_try.last_try.day) >= 2 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
             elif habit.interval == habit.Kinds.THREE:
-                if (now.day - date_try.last_try.day) == 3 and (
+                if (now.day - date_try.last_try.day) >= 3 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
             elif habit.interval == habit.Kinds.FOUR:
-                if (now.day - date_try.last_try.day) == 4 and (
+                if (now.day - date_try.last_try.day) >= 4 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
             elif habit.interval == habit.Kinds.FIVE:
-                if (now.day - date_try.last_try.day) == 5 and (
+                if (now.day - date_try.last_try.day) >= 5 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
             elif habit.interval == habit.Kinds.SIX:
-                if (now.day - date_try.last_try.day) == 6 and (
+                if (now.day - date_try.last_try.day) >= 6 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
             elif habit.interval == habit.Kinds.SEVEN:
-                if (now.day - date_try.last_try.day) == 7 and (
+                if (now.day - date_try.last_try.day) >= 7 and (
                         now.strftime('%H:%M') == habit.date_time.strftime('%H:%M')):
                     send_telegram_message(habit)
         else:
@@ -140,22 +139,6 @@ def telegram_schedule():
                     user=habit.habit_user,
                     status=False
                 )
-
-
-# Создание Crontab-расписания.
-schedule, _ = CrontabSchedule.objects.get_or_create(
-    minute='*',
-    hour='*',
-    day_of_week='*',
-    day_of_month='*',
-    month_of_year='*',
-)
-# Создание периодической задачи.
-PeriodicTask.objects.get_or_create(
-    crontab=schedule,
-    name='Send telegram message',
-    task='habits.tasks.telegram_schedule',
-)
 
 
 @shared_task
