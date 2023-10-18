@@ -96,18 +96,46 @@ CREATE DATABASE health_tracker;
 # Работа с переменными окружения
 
 - В директории `health_tracker` создайте файл `.env`. Пример содержимого файла:
+- Пример содержимого файла `.env` для запуска сервиса через docker:
 ```
-password=пароль для пользователя postgresql
+HOST=название текущего хоста — db (из docker-compose)
+NAME=название базы данных — postgres
+USER=имя текущего пользователя — postgres
+PASSWORD=пароль текущего пользователя — ваш пароль
+
+POSTGRES_USER=имя пользователя — postgres
+POSTGRES_PASSWORD=пароль пользователя — ваш пароль 
+POSTGRES_DB=название базы данных для подключения из docker — db (из docker-compose)
 
 EMAIL_BACKEND=путь импорта Python для вашего класса бэкенда
 EMAIL_HOST=хост SMTP
 EMAIL_HOST_USER=адрес электронной почты для аутентификации на почтовом сервере
 EMAIL_HOST_PASSWORD=пароль для аутентификации на почтовом сервере
 
-LOCATION=местоположение используемого брокера (redis)
+TELEGRAM_API_KEY=API ключ для подключения платежей
 
-TELEGRAM_API_KEY=токен для доступа к HTTP API
+LOCATION=местоположение используемого кеша (redis://redis:6379)
+``` 
+- Пример содержимого файла `.env` для запуска сервиса на локальной машине без docker:
 ```
+HOST=название текущего хоста — localhost
+NAME=название базы данных — lms_system_project
+USER=имя текущего пользователя — postgres
+PASSWORD=пароль текущего пользователя — ваш пароль
+
+POSTGRES_USER=имя пользователя — postgres
+POSTGRES_PASSWORD=пароль пользователя — ваш пароль 
+POSTGRES_DB=название базы данных для подключения из docker — db (из docker-compose)
+
+EMAIL_BACKEND=путь импорта Python для вашего класса бэкенда
+EMAIL_HOST=хост SMTP
+EMAIL_HOST_USER=адрес электронной почты для аутентификации на почтовом сервере
+EMAIL_HOST_PASSWORD=пароль для аутентификации на почтовом сервере
+
+STRIPE_API_KEY=API ключ для подключения платежей
+
+TELEGRAM_API_KEY=местоположение используемого кеша (redis://127.0.0.1:6379)
+``` 
 # Получение токена для доступа к HTTP API Telegram
 
 - Создайте свой телеграм-бот с помощью бота [BotFather](https://t.me/botfather) через команду `/newbot`.
@@ -139,4 +167,30 @@ celery -A config worker -l info
 - Запустите периодические задачи, выполнив в консоли: </br>
 ```
 celery -A config beat -l info -S django
+```
+
+# Запуск сервера Django c использованием docker-compose
+
+- Установите `docker` согласно инструкции на сайте [docker](https://www.docker.com/get-started/). </br>
+- Запустите образ для запуска нескольких контейнеров с использованием `docker-compose`. Для этого из директории `health_tracker` выполните в консоли: </br>
+```
+docker-compose build
+```
+- Запустите собранный образ. Для этого из директории `health_tracker` выполните в консоли: </br>
+```
+docker-compose up
+```
+- Или для запуска образа в фоновом режим из директории `health_tracker` выполните в консоли: </br>
+```
+docker-compose up -d
+```
+- В новой открытой сессии создайте суперпользователя. Для этого из директории `health_tracker` выполните в консоли: </br>
+```
+docker-compose exec web python manage.py csu
+```
+- Сервис будет доступен по URL `http://127.0.0.1:8000/` </br>
+- Для остановки работы образа из директории `health_tracker` в консоли нажмите `CTRL + C`: </br>
+- Для удаления остановленного образа из директории `health_tracker` в консоли выполните: </br>
+```
+docker-compose down
 ```
